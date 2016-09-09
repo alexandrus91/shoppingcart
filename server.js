@@ -72,10 +72,11 @@ app.post('/basket/:basketid/addProduct', wrap(function* (req, res) {
   //res.json(response)
 }))
 
+//TODO It doesn`t works right now
 //Get an item(product) from the basket
 app.get('/basket/:basketid/getProduct/:itemid', wrap(function* (req, res) {
   console.log("Inside app.get('/basket/:basketid/getProduct/:itemid')");
-  var resp = yield baskets.find({ id: parseInt(req.params.basketid), "products.$.product_id": parseInt(req.params.itemid)}).toArray()
+  var resp = yield baskets.find({ id: parseInt(req.params.basketid), "products.product_id": req.params.itemid }).toArray()
   res.json(resp)
   //var response = yield baskets.insertOne(req.body)
   //res.json(response)
@@ -92,7 +93,12 @@ app.delete('/basket/:basketid/removeProduct', wrap(function* (req, res) {
 //Checkout -> Just show basket total
 app.get('/basket/:basketid/checkout', wrap(function* (req, res) {
   //console.log(validateProduct(req.body));
-  res.json({})
+  var totalPrice = 0;
+  var currentCart = yield baskets.find({ id: parseInt(req.params.basketid) }).toArray()
+  for (var product of currentCart[0].products) {
+    totalPrice += product.net_price;
+  }
+  res.json({ totalPrice: totalPrice })
   //var response = yield baskets.insertOne(req.body)
   //res.json(response)
 }))
