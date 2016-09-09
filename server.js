@@ -64,16 +64,19 @@ app.get('/basket/:basketid', wrap(function* (req, res) {
 
 //Add an item(product) to the basket
 app.post('/basket/:basketid/addProduct', wrap(function* (req, res) {
-  console.log(validateProduct(req.body));
-  res.json({})
+  if (!validateProduct(req.body))
+    return res.json({})
+  var resp = yield baskets.update({ id: parseInt(req.params.basketid) }, { $push: { 'products': req.body } })
+  res.json(resp)
   //var response = yield baskets.insertOne(req.body)
   //res.json(response)
 }))
 
 //Get an item(product) from the basket
-app.get('/basket/:basketid/addProduct', wrap(function* (req, res) {
-  console.log(validateProduct(req.body));
-  res.json({})
+app.get('/basket/:basketid/getProduct/:itemid', wrap(function* (req, res) {
+  console.log("Inside app.get('/basket/:basketid/getProduct/:itemid')");
+  var resp = yield baskets.find({ id: parseInt(req.params.basketid), "products.$.product_id": parseInt(req.params.itemid)}).toArray()
+  res.json(resp)
   //var response = yield baskets.insertOne(req.body)
   //res.json(response)
 }))
