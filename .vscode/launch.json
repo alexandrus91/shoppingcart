@@ -38,7 +38,7 @@
             "type": "node",
             "request": "attach",
             "port": 5858,
-            "address": "10.100.20.138",
+            "address": "192.168.99.100",
             "restart": false,
             "sourceMaps": false,
             "outDir": null,

@@ -58,7 +58,8 @@ app.post('/basket', wrap(function* (req, res) {
 //Retrieve basket with basket items based on criteria (basket_id)
 app.get('/basket/:basketid', wrap(function* (req, res) {
   console.log(req.params.basketid)
-  res.json(yield baskets.find({ id: req.params.basketid }))
+  var resp = yield baskets.find({ id: req.params.basketid }).toArray()
+  res.json(resp)
 }))
 
 //Add an item(product) to the basket
