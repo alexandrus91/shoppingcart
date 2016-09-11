@@ -111,7 +111,7 @@ app.post('/auth', wrap(function* (req, res) {
   if (req.body.username === 'admin' && req.body.password === 'admin') {
     var token = jwt.sign({ username: 'admin' }, config.JWT_SECRET, {
       expiresIn: 60 * 15 // expires in 15 minutes
-    });
+    })
     res.json({ token: token })
   }
   else {
