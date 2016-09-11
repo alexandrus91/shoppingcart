@@ -10,11 +10,11 @@ var co = require('co')
 var wrap = require('co-express')
 var mongo = require('co-mongodb')
 
+var config = require('./config.js')
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-app.use(expressJWT({ secret: 'superSecret' }).unless({ path: ['/auth'] }))
-
-var connectionString = 'mongodb://mongo:27017/test'
+app.use(expressJWT({ secret: config.JWT_SECRET }).unless({ path: ['/auth'] }))
 
 var validateProduct = function (input) {
   var structure = {
@@ -43,7 +43,7 @@ var validateProduct = function (input) {
 
 co(function* () {
   try {
-    db = yield mongo.client.connect(connectionString)
+    db = yield mongo.client.connect(config.MONGODB_CONNECTION_STRING)
     baskets = db.collection('baskets')
   } catch (err) {
     console.log(err)
@@ -109,7 +109,7 @@ app.get('/basket/:basketid/checkout', wrap(function* (req, res) {
 app.post('/auth', wrap(function* (req, res) {
   console.log(req.body.username, req.body.password)
   if (req.body.username === 'admin' && req.body.password === 'admin') {
-    var token = jwt.sign({ username: 'admin' }, 'superSecret', {
+    var token = jwt.sign({ username: 'admin' }, config.JWT_SECRET, {
       expiresIn: 60 * 15 // expires in 15 minutes
     });
     res.json({ token: token })
