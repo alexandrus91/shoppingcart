@@ -12,6 +12,7 @@ var mongo = require('co-mongodb')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+app.use(expressJWT({ secret: 'superSecret' }).unless({ path: ['/auth'] }))
 
 var connectionString = 'mongodb://mongo:27017/test'
 
@@ -50,9 +51,7 @@ co(function* () {
 })
 
 //Create a basket with basket items
-app.post('/basket', expressJWT({
-  secret: 'superSecret'
-}), wrap(function* (req, res) {
+app.post('/basket', wrap(function* (req, res) {
   console.log("Inside app.post('/basket')")
   res.json(yield baskets.insertOne(req.body))
   //var response = yield baskets.insertOne(req.body)
@@ -60,18 +59,14 @@ app.post('/basket', expressJWT({
 }))
 
 //Retrieve basket with basket items based on criteria (basket_id)
-app.get('/basket/:basketid', expressJWT({
-  secret: 'superSecret'
-}), wrap(function* (req, res) {
+app.get('/basket/:basketid', wrap(function* (req, res) {
   console.log("Inside app.get('/basket/:basketid')")
   var resp = yield baskets.find({ id: parseInt(req.params.basketid) }).toArray()
   res.json(resp[0])
 }))
 
 //Add an item(product) to the basket
-app.post('/basket/:basketid/addProduct', expressJWT({
-  secret: 'superSecret'
-}), wrap(function* (req, res) {
+app.post('/basket/:basketid/addProduct', wrap(function* (req, res) {
   if (!validateProduct(req.body))
     return res.json({})
   var resp = yield baskets.update({ id: parseInt(req.params.basketid) }, { $push: { 'products': req.body } })
@@ -82,9 +77,7 @@ app.post('/basket/:basketid/addProduct', expressJWT({
 
 //TODO It doesn`t works right now
 //Get an item(product) from the basket
-app.get('/basket/:basketid/getProduct/:itemid', expressJWT({
-  secret: 'superSecret'
-}), wrap(function* (req, res) {
+app.get('/basket/:basketid/getProduct/:itemid', wrap(function* (req, res) {
   console.log("Inside app.get('/basket/:basketid/getProduct/:itemid')")
   var resp = yield baskets.find({ id: parseInt(req.params.basketid), "products.product_id": req.params.itemid }).toArray()
   res.json(resp)
@@ -93,9 +86,7 @@ app.get('/basket/:basketid/getProduct/:itemid', expressJWT({
 }))
 
 //Remove an item(product) from the basket
-app.delete('/basket/:basketid/removeProduct', expressJWT({
-  secret: 'superSecret'
-}), wrap(function* (req, res) {
+app.delete('/basket/:basketid/removeProduct', wrap(function* (req, res) {
   //console.log(validateProduct(req.body))
   res.json({})
   //var response = yield baskets.insertOne(req.body)
@@ -103,9 +94,7 @@ app.delete('/basket/:basketid/removeProduct', expressJWT({
 }))
 
 //Checkout -> Just show basket total
-app.get('/basket/:basketid/checkout', expressJWT({
-  secret: 'superSecret'
-}), wrap(function* (req, res) {
+app.get('/basket/:basketid/checkout', wrap(function* (req, res) {
   //console.log(validateProduct(req.body))
   var totalPrice = 0
   var currentCart = yield baskets.find({ id: parseInt(req.params.basketid) }).toArray()
